@@ -215,7 +215,7 @@ public class BodySystemsSetupFrame extends JFrame implements ActionListener,KeyL
                 this.bodySystemSetupListPanel.addBodySystem(new BodySystem());
             }
             else if(tabbedPane.getTitleAt(tabbedPane.getSelectedIndex()).equals(tabLabelClinicalComplaints)){
-                this.clinicalComplaintSetupListPanel.addClinicalComplaint(new ClinicalComplaint());
+                this.clinicalComplaintSetupListPanel.addClinicalComplaint();
             }
         }
     }

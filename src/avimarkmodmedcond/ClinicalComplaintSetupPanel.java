@@ -1,21 +1,15 @@
 package avimarkmodmedcond;
 
-import com.google.common.base.Joiner;
 import java.awt.Component;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.FocusEvent;
-import java.awt.event.FocusListener;
 import java.util.ArrayList;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
-import javax.swing.JList;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
-import javax.swing.DefaultComboBoxModel;
-import javax.swing.JLabel;
 
 /*
  * To change this template, choose Tools | Templates
@@ -32,6 +26,8 @@ public class ClinicalComplaintSetupPanel extends JPanel implements ActionListene
     private JTextField nameJTextField;
     private JButton updateQuestionsJButton;
     private JButton deleteJButton;
+    private JButton upJButton;
+    private JButton downJButton;
     private JPanel questionsJPanel;
     private final int maxNumberOfQuestions = 15;
     
@@ -65,46 +61,42 @@ public class ClinicalComplaintSetupPanel extends JPanel implements ActionListene
     public ClinicalComplaintSetupPanel(ClinicalComplaint cc,ClinicalComplaintSetupListPanel parent){
         this.parent = parent;
         
-        nameJTextField = new JTextField(cc.getName(),20);
+        if(null == cc){
+            cc = new ClinicalComplaint();
+        }
+        
+        nameJTextField = new JTextField(cc.getName(),30);
         
         updateQuestionsJButton = new JButton("Update Questions");
         updateQuestionsJButton.addActionListener(this);    
               
         
         questionsJPanel = new JPanel();
-        questionsJPanel.setLayout(new GridLayout(maxNumberOfQuestions+1,1));
+        questionsJPanel.setLayout(new GridLayout(maxNumberOfQuestions,1));
         
-        JPanel header = new JPanel();
-        header.setLayout(new GridLayout(1,3));
-        JLabel questionJLabel = new JLabel("Question");
-        questionJLabel.setHorizontalAlignment(JLabel.CENTER);
-        JLabel textToDisplayJLabel = new JLabel("Alternative Text");
-        textToDisplayJLabel.setHorizontalAlignment(JLabel.CENTER);
-        JLabel categoriesJLabel = new JLabel("Categories");
-        categoriesJLabel.setHorizontalAlignment(JLabel.CENTER);
-        header.add(questionJLabel);
-        header.add(textToDisplayJLabel);
-        header.add(categoriesJLabel);
-        questionsJPanel.add(header);
         for (int i=0;i<maxNumberOfQuestions;i++){
             
             
-            JPanel questionJPanel = new QuestionJPanel(new Question(),parent.getListOfCategories());
+            JPanel questionJPanel = new QuestionJPanel(new Question(),parent.getListOfCategories(),this);
             if(i<cc.getListOfQuestions().size()){
-                questionJPanel = new QuestionJPanel(cc.getListOfQuestions().get(i),parent.getListOfCategories());
+                questionJPanel = new QuestionJPanel(cc.getListOfQuestions().get(i),parent.getListOfCategories(),this);
             }
             questionsJPanel.add(questionJPanel);
         }
         
         
-        
+        upJButton = new JButton("Up");
+        upJButton.addActionListener(this);
+        downJButton = new JButton("Down");
+        downJButton.addActionListener(this);
         deleteJButton = new JButton("Delete");
         deleteJButton.addActionListener(this);
                 
         this.setSize(800,25);
-        this.setLayout(new GridLayout(1,3));
         this.add(nameJTextField);
         this.add(updateQuestionsJButton);
+        this.add(upJButton);
+        this.add(downJButton);
         this.add(deleteJButton);
     }
     
@@ -135,6 +127,12 @@ public class ClinicalComplaintSetupPanel extends JPanel implements ActionListene
 
     @Override
     public void actionPerformed(ActionEvent e) {
+        if (e.getSource() == upJButton){
+            this.parent.upClinicalComplaintSetupPanel(this);
+        }
+        if (e.getSource() == downJButton){
+            this.parent.downClinicalComplaintSetupPanel(this);
+        }     
         if (e.getSource() == deleteJButton){
             this.setEnabled(false);
             this.parent.refresh();
@@ -144,4 +142,62 @@ public class ClinicalComplaintSetupPanel extends JPanel implements ActionListene
                     questionsJPanel, "Enter the questions", JOptionPane.PLAIN_MESSAGE); 
         }
     }
+    
+    
+    void upQuestionJPanel(QuestionJPanel qjp){
+       ArrayList<QuestionJPanel> reorderedListOfQuestionJPanel = new ArrayList<>();
+       for(Object o : questionsJPanel.getComponents()){
+            if(o instanceof QuestionJPanel){
+                QuestionJPanel currentQjp = (QuestionJPanel) o;
+                if(qjp == currentQjp){
+                    //If it is the first we don't do anything        
+                    if (reorderedListOfQuestionJPanel.isEmpty()){
+                        return;
+                    }
+                    //Swap
+                    QuestionJPanel temp = reorderedListOfQuestionJPanel.get(reorderedListOfQuestionJPanel.size()-1);
+                    reorderedListOfQuestionJPanel.remove(reorderedListOfQuestionJPanel.size()-1);
+                    reorderedListOfQuestionJPanel.add(currentQjp);
+                    reorderedListOfQuestionJPanel.add(temp);
+                 }
+                 else{
+                    reorderedListOfQuestionJPanel.add(currentQjp);
+                 }
+                 questionsJPanel.remove(qjp);
+            }
+       }
+       for(QuestionJPanel cssp : reorderedListOfQuestionJPanel){
+           questionsJPanel.add(cssp);
+       }
+       questionsJPanel.updateUI();
+    }
+    
+    void downQuestionJPanel(QuestionJPanel qjp){
+       ArrayList<QuestionJPanel> reorderedListOfQuestionJPanel = new ArrayList<>();
+       QuestionJPanel found = null;
+       for(Object o : questionsJPanel.getComponents()){
+            if(o instanceof QuestionJPanel){
+                QuestionJPanel currentQjp = (QuestionJPanel) o;
+                if(qjp == currentQjp){
+                    found = currentQjp;
+                 }
+                 else{
+                    reorderedListOfQuestionJPanel.add(currentQjp);
+                    if(null != found){
+                        reorderedListOfQuestionJPanel.add(found);
+                        found = null;
+                    }
+                 }
+                 questionsJPanel.remove(qjp);
+            }
+       }
+       if(null != found){
+           reorderedListOfQuestionJPanel.add(found);
+       }
+       for(QuestionJPanel cssp : reorderedListOfQuestionJPanel){
+           questionsJPanel.add(cssp);
+       }
+       questionsJPanel.updateUI();        
+    }
+    
 }

@@ -5,7 +5,6 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
 import javax.swing.JButton;
-import javax.swing.JComboBox;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
@@ -27,7 +26,7 @@ public class ClinicalComplaintSetupListPanel extends JPanel implements ActionLis
     private final int maxNumberOfClinicalComplaints = 20;
     private JButton categoriesJButton;
     private JPanel categoriesJPanel;
-    private final int maxNumberOfCategories = 15;
+    private final int maxNumberOfCategories = 30;
 
 
     ClinicalComplaintSetupListPanel() {
@@ -37,12 +36,18 @@ public class ClinicalComplaintSetupListPanel extends JPanel implements ActionLis
         categoriesJButton.addActionListener(this);
         this.add(categoriesJButton);
         categoriesJPanel = new JPanel();
-        categoriesJPanel.setLayout(new GridLayout(maxNumberOfCategories,1));
+        categoriesJPanel.setLayout(new GridLayout(maxNumberOfCategories/2,1));
         
-        for (int i=0;i<maxNumberOfCategories;i++){
+        for (int i=0;i<maxNumberOfCategories;i+=2){
+            
             JTextField tempJTextField = new JTextField("",30);
-            tempJTextField.addActionListener(this);
-            categoriesJPanel.add(tempJTextField);
+            JTextField tempJTextField2 = new JTextField("",30);
+            JPanel tempJPanel = new JPanel();
+            tempJPanel.setLayout(new GridLayout(1,2));
+            
+            tempJPanel.add(tempJTextField);
+            tempJPanel.add(tempJTextField2);
+            categoriesJPanel.add(tempJPanel);
         }
         
     }
@@ -54,14 +59,23 @@ public class ClinicalComplaintSetupListPanel extends JPanel implements ActionLis
         categoriesJButton.addActionListener(this);
         this.add(categoriesJButton);
         categoriesJPanel = new JPanel();
-        categoriesJPanel.setLayout(new GridLayout(maxNumberOfCategories,1));
+        categoriesJPanel.setLayout(new GridLayout(maxNumberOfCategories/2,1));
         
-        for (int i=0;i<maxNumberOfCategories;i++){
+        for (int i=0;i<maxNumberOfCategories;i+=2){
             JTextField tempJTextField = new JTextField("",30);
+            JTextField tempJTextField2 = new JTextField("",30);
             if(i<clinicalComplaints.getCategories().size()){
                 tempJTextField.setText(clinicalComplaints.getCategories().get(i));
             }
-            categoriesJPanel.add(tempJTextField);
+            if(i+1<clinicalComplaints.getCategories().size()){
+                tempJTextField2.setText(clinicalComplaints.getCategories().get(i+1));
+            }
+            JPanel tempJPanel = new JPanel();
+            tempJPanel.setLayout(new GridLayout(1,2));
+            
+            tempJPanel.add(tempJTextField);
+            tempJPanel.add(tempJTextField2);
+            categoriesJPanel.add(tempJPanel);
         }
 
         for (ClinicalComplaint cc : clinicalComplaints.getListOfClinicalComplaints()){
@@ -92,9 +106,13 @@ public class ClinicalComplaintSetupListPanel extends JPanel implements ActionLis
         ArrayList<String> listOfCategories = new ArrayList<>();
         
         for(Object o : categoriesJPanel.getComponents()){
-            if (o instanceof JTextField){
-                if(!((JTextField)o).getText().isEmpty()){
-                    listOfCategories.add(((JTextField)o).getText());
+            if (o instanceof JPanel){
+                for(Object o2 : ((JPanel) o).getComponents()){
+                    if (o2 instanceof JTextField){
+                        if(!((JTextField)o2).getText().isEmpty()){
+                            listOfCategories.add(((JTextField)o2).getText());
+                        }
+                    }
                 }
             }
         }
@@ -106,16 +124,75 @@ public class ClinicalComplaintSetupListPanel extends JPanel implements ActionLis
      *
      * @param cc
      */
-    public void addClinicalComplaint(ClinicalComplaint cc){
+    public void addClinicalComplaint(){
         if (this.getComponents().length == maxNumberOfClinicalComplaints+1){
             JOptionPane.showMessageDialog(this, "Maximum number of clinical complaints reached");
             return;
         }
         
-        ClinicalComplaintSetupPanel tmp = new ClinicalComplaintSetupPanel(cc,this);
+        ClinicalComplaintSetupPanel tmp = new ClinicalComplaintSetupPanel(null,this);
         this.add(tmp);
         this.updateUI();
         
+    }
+    
+    void upClinicalComplaintSetupPanel(ClinicalComplaintSetupPanel ccsp){
+       ArrayList<ClinicalComplaintSetupPanel> reorderedListOfClinicalComplaintSetupPanel = new ArrayList<>();
+       for(Object o : this.getComponents()){
+            if(o instanceof ClinicalComplaintSetupPanel){
+                ClinicalComplaintSetupPanel currentCcsp = (ClinicalComplaintSetupPanel) o;
+                if(ccsp == currentCcsp){
+                    //If it is the first we don't do anything         
+                    if (reorderedListOfClinicalComplaintSetupPanel.isEmpty()){
+                        return;
+                    }
+                    //Swap
+                    ClinicalComplaintSetupPanel temp = reorderedListOfClinicalComplaintSetupPanel.get(reorderedListOfClinicalComplaintSetupPanel.size()-1);
+                    reorderedListOfClinicalComplaintSetupPanel.remove(reorderedListOfClinicalComplaintSetupPanel.size()-1);
+                    reorderedListOfClinicalComplaintSetupPanel.add(currentCcsp);
+                    reorderedListOfClinicalComplaintSetupPanel.add(temp);
+                 }
+                 else{
+                    reorderedListOfClinicalComplaintSetupPanel.add(currentCcsp);
+                 }
+                 this.remove(ccsp);
+            }
+       }
+       for(ClinicalComplaintSetupPanel cssp : reorderedListOfClinicalComplaintSetupPanel){
+           this.add(cssp);
+       }
+       this.updateUI();
+    }
+    
+    void downClinicalComplaintSetupPanel(ClinicalComplaintSetupPanel ccsp){
+       
+       ArrayList<ClinicalComplaintSetupPanel> reorderedListOfClinicalComplaintSetupPanel = new ArrayList<>();
+       ClinicalComplaintSetupPanel found = null;
+       for(Object o : this.getComponents()){
+            if(o instanceof ClinicalComplaintSetupPanel){
+                ClinicalComplaintSetupPanel currentCcsp = (ClinicalComplaintSetupPanel) o;
+              
+                if(ccsp == currentCcsp){
+                    found = currentCcsp;
+                 }
+                 else{
+                    reorderedListOfClinicalComplaintSetupPanel.add(currentCcsp);
+                    if(null != found){
+                        reorderedListOfClinicalComplaintSetupPanel.add(found);
+                        found = null;
+                    }
+                 }
+                 this.remove(ccsp);
+            }
+       }
+       if(null != found){
+            reorderedListOfClinicalComplaintSetupPanel.add(found);
+       }
+       
+       for(ClinicalComplaintSetupPanel cssp : reorderedListOfClinicalComplaintSetupPanel){
+           this.add(cssp);
+       }
+       this.updateUI();        
     }
 
     void refresh() {
