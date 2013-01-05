@@ -20,7 +20,7 @@ import javax.swing.JTextField;
  */
 public class QuestionJPanel extends JPanel implements ActionListener{
     private JTextField questionJTextField;
-    private JTextField textToDisplayJTextField;
+    //private JTextField textToDisplayJTextField;
     private JComboBox categoriesJComboBox;
     private JButton upJButton;
     private JButton downJButton;
@@ -38,7 +38,7 @@ public class QuestionJPanel extends JPanel implements ActionListener{
         
         
         questionJTextField = new JTextField("",30);
-        textToDisplayJTextField = new JTextField("",20);
+        //textToDisplayJTextField = new JTextField("",20);
         
        
         categoriesJComboBox = new JComboBox(listOfCategories.toArray());
@@ -46,7 +46,7 @@ public class QuestionJPanel extends JPanel implements ActionListener{
         
         
         questionJTextField.setText(question.getQuestion());
-        textToDisplayJTextField.setText(question.getTextToDisplay());
+        //textToDisplayJTextField.setText(question.getTextToDisplay());
         categoriesJComboBox.setSelectedItem(question.getCategory());
 
         
@@ -56,7 +56,7 @@ public class QuestionJPanel extends JPanel implements ActionListener{
         downJButton.addActionListener(this);
         
         this.add(questionJTextField);
-        this.add(textToDisplayJTextField);
+        //this.add(textToDisplayJTextField);
         this.add(categoriesJComboBox);
         this.add(upJButton);
         this.add(downJButton);
@@ -68,7 +68,7 @@ public class QuestionJPanel extends JPanel implements ActionListener{
             q = new Question();
             q.setCategory((String)categoriesJComboBox.getSelectedItem());
             q.setQuestion(questionJTextField.getText());
-            q.setTextToDisplay(textToDisplayJTextField.getText());
+            //q.setTextToDisplay(textToDisplayJTextField.getText());
         }
         return q;
     }
