@@ -23,7 +23,7 @@ public class BodySystemSetupListPanel extends JPanel {
 
     BodySystemSetupListPanel() {
         this.setSize(800,700);
-        this.setLayout(new GridLayout(maxNumberOfBodySystems,1,1,1));
+        this.setLayout(new GridLayout(maxNumberOfBodySystems,2,1,1));
     }
     
     public void set(BodySystems bodySystems){

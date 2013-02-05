@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import javax.swing.JButton;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
 import javax.swing.JTextField;
 
 /*
@@ -23,7 +24,7 @@ public class ClinicalComplaintSetupListPanel extends JPanel implements ActionLis
      *
      */
     
-    private final int maxNumberOfClinicalComplaints = 20;
+    private final int maxNumberOfClinicalComplaints = 30;
     private JButton categoriesJButton;
     private JPanel categoriesJPanel;
     private final int maxNumberOfCategories = 30;
@@ -31,7 +32,7 @@ public class ClinicalComplaintSetupListPanel extends JPanel implements ActionLis
 
     ClinicalComplaintSetupListPanel() {
         this.setSize(800,700);
-        this.setLayout(new GridLayout(maxNumberOfClinicalComplaints+1,1,1,1));
+        this.setLayout(new GridLayout(maxNumberOfClinicalComplaints+1,1,1,1)); 
         categoriesJButton = new JButton("Update Categories");
         categoriesJButton.addActionListener(this);
         this.add(categoriesJButton);
